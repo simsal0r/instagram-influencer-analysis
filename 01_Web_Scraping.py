@@ -18,7 +18,7 @@ import pandas as pd
 import re
 from tqdm import tqdm
 import time
-import IPython
+#import IPython
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 
@@ -117,11 +117,13 @@ urls = [
 
 # %%
 #Show next url and open website. First image needs to be selected manually.
+#This needs to be executed for each url
 driver.get(urls[0])
 url = urls[0] 
 print(url)
 
 # %%
+#This needs to be executed for each url
 #Remove the url from the list 
 del urls[0]
 
@@ -199,7 +201,7 @@ for x in tqdm(range(2000)):
 df.to_csv('scraping-output/results.csv', mode='a', sep="|", header=False)
 
 #Audio notification
-IPython.display.Audio("finished.wav", autoplay=True)
+#IPython.display.Audio("finished.wav", autoplay=True)
 
 # %%
 #Control amount of error in timestamps
