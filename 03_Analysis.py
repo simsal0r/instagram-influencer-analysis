@@ -21,6 +21,7 @@ from matplotlib import pyplot as plt
 # %%
 from IPython.display import display, HTML
 
+#Sets jupyter width to 100%
 display(HTML("<style>.container { width:100% !important; }</style>"))
 #pd.set_option('display.max_colwidth', None)
 
@@ -31,10 +32,10 @@ plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams.update({'font.size': 12})
 
 # %%
-df_info = pd.read_csv("influencer_information.csv", sep = "|",index_col=0)
+df_info = pd.read_csv("profiles_data.csv", sep = "|",index_col=0)
 
 # %%
-df_posts = pd.read_csv("results_cleaned.csv", sep = "|",index_col=0)
+df_posts = pd.read_csv("posts_data.csv", sep = "|",index_col=0)
 
 # %%
 mask = (df_posts['date_year_month2'] < "2020-07") & (df_posts['date_year_month2'] > "2019-02")
@@ -46,6 +47,9 @@ len(df_posts)
 # %%
 plot_df = pd.DataFrame(df_posts.groupby(["date_year_month2"]).size())
 
+
+# %% [markdown]
+# ### Plotting functions
 
 # %%
 def plot_two_bars(plot_df):
@@ -81,7 +85,7 @@ def plot_two_bars(plot_df):
 
     fig.tight_layout()
     
-    plt.savefig("2bars.pdf")
+    #plt.savefig("2bars.pdf")
 
     plt.show()
 
@@ -104,7 +108,7 @@ def get_total_percentage(plot_df):
 
 
 # %%
-#Insert 0 if no posts are available 
+#Hotfix, inserts 0 if no posts are available 
 def get_total_percentage2(user_grouped_df):
     try:
         a = user_grouped_df.loc["2019-03"].values[0]
@@ -167,12 +171,12 @@ def plot_bar_chart(plot_df):
 
     #Limits of Y axis
     axes.set_ylim([1000,1600])
-    plt.savefig("bars.pdf",bbox_inches='tight')
+    #plt.savefig("bars.pdf",bbox_inches='tight')
     plt.show()
 
 
 # %% [markdown]
-# # Theory 1: Total post volume decreased?
+# # 1) Theory: Total post volume decreased after CV-19 lockdown?
 
 # %%
 plot_bar_chart(plot_df)
@@ -187,7 +191,7 @@ plot_two_bars(plot_df)
 get_percentages(plot_df)
 
 # %% [markdown]
-# ### Distribution of the decrease
+# ### Let's investigate the distribution of the decrease
 
 # %%
 del plot_df
@@ -246,7 +250,7 @@ for user1 in df_posts.user.unique():
 # %%
 #Exclude outliers
 plot_df = plot_df[plot_df.month_sample >= 30]
-#plot_df = plot_df[plot_df.months_difference != -999]
+plot_df = plot_df[plot_df.months_difference != -999]
 plot_df = plot_df[plot_df.months_difference < 1.5]
 
 # %%
@@ -270,15 +274,11 @@ for feature in ["months_difference"]:
     maxfreq = n.max()
     fig = plt.gcf()
     fig.set_size_inches(8, 5)
-    plt.savefig("distusers.pdf")
+    #plt.savefig("distusers.pdf")
     plt.show()
 
-# %%
-clean_bins * 100
-
-
 # %% [markdown]
-# ### What about travel influencers?
+# ### What about travel influencers? Did they less often?
 
 # %%
 plot_df = pd.DataFrame(df_posts[df_posts.url.isin(df_info[df_info.is_travel == True].url.values)].groupby(["date_year_month2"]).size())
@@ -293,7 +293,7 @@ get_percentages(plot_df)
 get_total_percentage(plot_df)
 
 # %% [markdown]
-# ### Influencers that are not travel
+# ### So travel influencers didn't really stop posting... What about the complementary group?
 
 # %%
 plot_df = pd.DataFrame(df_posts[df_posts.url.isin(df_info[df_info.is_travel == False].url.values)].groupby(["date_year_month2"]).size())
@@ -306,11 +306,11 @@ get_percentages(plot_df)
 get_total_percentage(plot_df)
 
 # %%
-#Travel but not fashion
+#Receive list of influencers that are categorized as travel but not fashion
 #np.setdiff1d(df_info[df_info.is_travel == True].url.values,df_info[df_info.is_fashion == True].url.values)
 
 # %% [markdown]
-# # Theory 2: Behavior adoption prevents post volume decrease
+# # 2) Theory: Behavior adoption (topic shift) prevents post volume decrease
 
 # %% [markdown]
 # ### Influencers without topic shift
@@ -341,7 +341,7 @@ len(np.intersect1d(df_info[df_info.is_travel == False].url.values,df_info[df_inf
 len(df_info[df_info.is_travel == True])
 
 # %% [markdown]
-# ## One Influencer
+# # 3) Inspect a particular influencer
 
 # %%
 plot_df = pd.DataFrame(df_posts[df_posts.url.isin(["https://www.instagram.com/pamela_rf"])].groupby(["date_year_month2"]).size())
@@ -350,38 +350,34 @@ get_percentages(plot_df)
 # %%
 plot_two_bars(plot_df)
 
+# %% [markdown]
+# ### Likes per post
+
 # %%
-likes = list(filter(lambda x : x != 'Error', df_posts[df_posts.url.isin(["https://www.instagram.com/riccardosimonetti"])].likes.values))
+likes = list(filter(lambda x : x != 'Error', df_posts[df_posts.url.isin(["https://www.instagram.com/pamela_rf"])].likes.values))
 likes.reverse()
 likes = list(map(int, likes))
 likes = pd.DataFrame(likes)
 plt.figure(figsize=(8,3))
 plt.plot(likes.index,likes[0])
 
-# %%
-for x in df_posts.url.unique():
-    plot_df = pd.DataFrame(df_posts[df_posts.url.isin([x])].groupby(["date_year_month2"]).size())
-    print(x)
-    print(get_total_percentage2(plot_df))
-    print("\n")
+# %% [markdown]
+# # 4) How many influencers posted about CV-19 or BLM?
 
 # %%
 df_info.has_cv_19_post.value_counts()
 
 # %%
-
-# %%
 df_info.has_blm_post.value_counts()
 
-# %%
-
 # %% [markdown]
-# ## Ad volume
+# # 5) Theory: Ad volume decreased because of CV-19 lockdown
 
 # %%
 ad_keywords = ["Werbung","werbung","WERBUNG","Anzeige","anzeige","ANZEIGE"," #ad", "advertisement", "sponsored", "gesponsort", "promotion", "Promotion"]
 
 # %%
+#Test
 any(word in 'some one long two phrase promotionthree' for word in ad_keywords)
 
 
@@ -428,6 +424,9 @@ df_ads_aggregated["total_ads"] = total_ads
 # %%
 df_ads_aggregated
 
+# %% [markdown]
+# ### Proportion of ads of all posts
+
 # %%
 x = df_ads_aggregated.index
 energy = df_ads_aggregated.share_of_ads
@@ -445,6 +444,9 @@ plt.xticks(x_pos, x)
 #axes.set_ylim([1000,1600])
 
 plt.show()
+
+# %% [markdown]
+# ### Absolut amount of ads
 
 # %%
 x = df_ads_aggregated.index
@@ -465,16 +467,13 @@ plt.xticks(x_pos, x)
 plt.show()
 
 # %%
-df_ads_aggregated["total_ads"]
-
-# %%
 get_total_percentage(pd.DataFrame(df_ads_aggregated["total_ads"]))
 
 # %%
 get_total_percentage(pd.DataFrame(df_ads_aggregated["share_of_ads"]))
 
 # %% [markdown]
-# ## Aggregated likes
+# # 6) Did the number of likes decrease?
 
 # %%
 df_likes = df_posts.sort_values(by = ["date"])
@@ -498,9 +497,6 @@ likes_per_post = df_likes.groupby(["date_year_month2"]).likes.sum().values / df_
 likes_per_post
 
 # %%
-#likes_per_post[3:]
-
-# %%
 plt.plot(likes_per_post)
 axes = plt.gca()
 axes.set_ylim([0,50000])
@@ -512,16 +508,20 @@ likes_per_post.mean()
 # %%
 likes_per_post.std()
 
-# %%
-np.std(likes_per_post)
-
 # %% [markdown]
-# ## Top posts
+# ### Top posts (likes)
 
 # %%
-df_posts1 = df_posts[df_posts.url == "https://www.instagram.com/"].sort_values(by=["likes"],ascending=False)
+df_likes = df_posts.sort_values(by=["likes"],ascending=False)
 
 # %%
-df_posts1[df_posts1.likes != "Error"]
+df_likes = df_likes[df_likes.likes != "Error"]
+df_likes["likes"] = list(map(int, df_likes["likes"]))
+
+# %%
+df_likes = df_likes.sort_values(by=["likes"],ascending=False)
+
+# %%
+df_likes.head(20)
 
 # %%

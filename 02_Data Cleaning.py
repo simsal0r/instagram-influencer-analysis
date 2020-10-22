@@ -88,6 +88,6 @@ df.head()
 df["likes"] = df.likes.apply(lambda x: x.replace(".",""))
 
 # %%
-df.to_csv("results_cleaned.csv",sep="|")
+df.to_csv("posts_data.csv",sep="|")
 
 # %%
